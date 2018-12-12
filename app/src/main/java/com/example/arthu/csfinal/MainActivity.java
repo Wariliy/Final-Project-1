@@ -9,23 +9,39 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 
 import static com.example.arthu.csfinal.App.CHANNEL_1_ID;
+import android.net.Uri;
+
 
 public class MainActivity extends AppCompatActivity {
     private TextView countdownText;
     private Button countdownButton;
     private Button resumeButton;
+    private TextView thePhoneNumber = findViewById(R.id.phoneNumber);
 
 
     private CountDownTimer countdownTimer;
-    private long timeLeftInMilliseconds = 600000; //10 mins
+    private long timeLeftInMilliseconds = 6000; //10 mins
     private boolean timeRunning;
-
+    private boolean phoneCall = false;
     private NotificationManagerCompat notificationManager;
+    private Button button;
+    private String Phonenumber = String.format("tel: %s",
+                                    thePhoneNumber.getText().toString());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +53,20 @@ public class MainActivity extends AppCompatActivity {
         countdownText = findViewById(R.id.countdown_text);
         countdownButton = findViewById(R.id.countdown_button);
         resumeButton = findViewById(R.id.countdown_resume);
+        button = (Button) findViewById(R.id.buttonCall);
 
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse(Phonenumber));
+
+                if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                    }
+                    startActivity(callIntent);
+                }
+        });
         countdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,9 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }); // ButtonClick to start or stop the timer
-
         updateTimer();
-
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
     /**
      * if time is running, stop the timer
      * if not, start the timer
@@ -103,11 +129,13 @@ public class MainActivity extends AppCompatActivity {
         countdownTimer.cancel();
         countdownButton.setText("Start");
         timeRunning = false;
+        phoneCall = true;
     }
 
     public void resumeTimer() {
         countdownTimer.cancel();
         timeRunning = false;
+        phoneCall = false;
         String timeLeftText;
 
         timeLeftText = " 10:00";
