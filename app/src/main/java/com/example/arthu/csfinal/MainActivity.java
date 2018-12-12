@@ -1,10 +1,14 @@
 package com.example.arthu.csfinal;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.CountDownTimer;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,10 +23,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView countdownText;
     private Button countdownButton;
     private Button resumeButton;
+    private Button button;
 
 
     private CountDownTimer countdownTimer;
-    private long timeLeftInMilliseconds = 600000; //10 mins
+    private long timeLeftInMilliseconds = 6000; //10 mins
     private boolean timeRunning;
 
     private NotificationManagerCompat notificationManager;
@@ -84,7 +89,14 @@ public class MainActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 timeLeftInMilliseconds = millisUntilFinished;
                 updateTimer();
-                if (timeLeftInMilliseconds < 60000) {
+                if (timeLeftInMilliseconds < 6000) {
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:6787560747"));
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                            Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    startActivity(callIntent);
                     sendNotification();
                 }
             }
@@ -111,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         String timeLeftText;
 
         timeLeftText = " 10:00";
-        timeLeftInMilliseconds = 600000;
+        timeLeftInMilliseconds = 60000;
         countdownText.setText(timeLeftText);
     }
 
